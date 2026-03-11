@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entry Log</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0e0f11;
+        --surface: #16181c;
+        --border: #2a2d33;
+        --accent: #7c6aff;
+        --accent2: #a78bfa;
+        --text: #e4e6eb;
+        --muted: #6b7280;
+        --success: #34d399;
+        --danger: #f87171;
+        --radius: 10px;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      /* ── AUTH SCREEN ── */
+      #auth-screen {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      .auth-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 40px 36px;
+        width: 100%;
+        max-width: 380px;
+      }
+      .auth-box h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .auth-box .sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+      .auth-tabs {
+        display: flex;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 24px;
+      }
+      .auth-tabs button {
+        flex: 1;
+        padding: 9px;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .auth-tabs button.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      .auth-field {
+        margin-bottom: 14px;
+      }
+      .auth-field label {
+        display: block;
+        font-size: 11px;
+        font-family: "DM Mono", monospace;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .auth-field input {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 10px 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .auth-field input:focus {
+        border-color: var(--accent);
+      }
+      .auth-err {
+        font-size: 12px;
+        color: var(--danger);
+        margin-bottom: 14px;
+        min-height: 16px;
+      }
+      .btn-auth {
+        width: 100%;
+        padding: 12px;
+        background: var(--accent);
+        border: none;
+        border-radius: var(--radius);
+        color: #fff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        margin-top: 4px;
+      }
+      .btn-auth:hover {
+        opacity: 0.88;
+      }
+      .btn-auth:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      /* ── APP ── */
+      #app {
+        display: none;
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding: 0 24px;
+        background: var(--surface);
+      }
+      nav .nav-links {
+        display: flex;
+        flex: 1;
+      }
+      nav button.nav-btn {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-family: "DM Mono", monospace;
+        font-size: 13px;
+        padding: 16px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        letter-spacing: 0.03em;
+      }
+      nav button.nav-btn.active {
+        color: var(--accent2);
+        border-bottom-color: var(--accent);
+      }
+      nav button.nav-btn:hover:not(.active) {
+        color: var(--text);
+      }
+      nav .nav-user {
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      nav .nav-user span {
+        color: var(--accent2);
+      }
+      nav .btn-logout {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--muted);
+        font-size: 11px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-family: "DM Mono", monospace;
+        letter-spacing: 0.05em;
+        transition: all 0.15s;
+      }
+      nav .btn-logout:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+
+      /* ── PAGES ── */
+      .page {
+        display: none;
+        padding: 32px 24px;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      .page.active {
+        display: block;
+      }
+
+      h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .field label {
+        font-size: 11px;
+        font-family: "DM Mono", monospace;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      input[type="time"],
+      textarea {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 10px 14px;
+        width: 100%;
+        outline: none;
+        transition: border-color 0.2s;
+        resize: vertical;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.5);
+        cursor: pointer;
+      }
+      input:focus,
+      textarea:focus {
+        border-color: var(--accent);
+      }
+      textarea {
+        min-height: 90px;
+      }
+
+      /* ── LEVEL ── */
+      .radio-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .radio-row label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+        font-family: "DM Mono", monospace;
+        cursor: pointer;
+        color: var(--muted);
+        transition: all 0.15s;
+        user-select: none;
+      }
+      .radio-row input[type="radio"] {
+        display: none;
+      }
+      .radio-row input:checked + label {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        font-weight: 500;
+      }
+      .radio-row label:hover {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
+
+      /* ── SAVE BTN ── */
+      .btn-save {
+        margin-top: 8px;
+        width: 100%;
+        padding: 13px;
+        background: var(--accent);
+        border: none;
+        border-radius: var(--radius);
+        color: #fff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          opacity 0.2s,
+          transform 0.1s;
+      }
+      .btn-save:hover {
+        opacity: 0.88;
+      }
+      .btn-save:active {
+        transform: scale(0.98);
+      }
+      .btn-save:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      /* ── TOAST ── */
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 18px;
+        font-size: 13px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        z-index: 99;
+      }
+      #toast.show {
+        opacity: 1;
+      }
+      #toast.ok {
+        border-color: var(--success);
+        color: var(--success);
+      }
+      #toast.err {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+
+      /* ── TABLE ── */
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      thead tr {
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 10px 12px;
+        text-align: left;
+        white-space: nowrap;
+      }
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--border);
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      tr:hover td {
+        background: var(--surface);
+      }
+
+      .badge-level {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: "DM Mono", monospace;
+        font-weight: 500;
+      }
+
+      /* ── PAGINATION ── */
+      .pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        justify-content: center;
+      }
+      .pagination button {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 8px;
+        padding: 7px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .pagination button:hover:not(:disabled) {
+        border-color: var(--accent);
+        color: var(--accent2);
+      }
+      .pagination button:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+      .pagination span {
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+        color: var(--muted);
+        min-width: 80px;
+        text-align: center;
+      }
+      .empty {
+        text-align: center;
+        padding: 48px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════ AUTH SCREEN ══════════════ -->
+    <div id="auth-screen">
+      <div class="auth-box">
+        <h1>Entry Log</h1>
+        <p class="sub">Track your moments.</p>
+
+        <div class="auth-tabs">
+          <button class="active" id="tab-login" onclick="switchTab('login')">
+            LOGIN
+          </button>
+          <button id="tab-register" onclick="switchTab('register')">
+            REGISTER
+          </button>
+        </div>
+
+        <div class="auth-field">
+          <label>Username</label>
+          <input
+            type="text"
+            id="a-username"
+            placeholder="yourname"
+            autocomplete="username"
+            onkeydown="if (event.key === 'Enter') authSubmit();"
+          />
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input
+            type="password"
+            id="a-password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            onkeydown="if (event.key === 'Enter') authSubmit();"
+          />
+        </div>
+
+        <div class="auth-err" id="auth-err"></div>
+        <button class="btn-auth" id="auth-btn" onclick="authSubmit()">
+          Login
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════ APP ══════════════ -->
+    <div id="app">
+      <nav>
+        <div class="nav-links">
+          <button class="nav-btn active" onclick="showPage('form', this)">
+            ＋ New Entry
+          </button>
+          <button
+            class="nav-btn"
+            onclick="
+              showPage('history', this);
+              loadHistory();
+            "
+          >
+            ↗ Past Data
+          </button>
+        </div>
+        <div class="nav-user">
+          hi, <span id="nav-username"></span>
+          <button class="btn-logout" onclick="logout()">logout</button>
+        </div>
+      </nav>
+
+      <!-- ── FORM PAGE ── -->
+      <div class="page active" id="page-form">
+        <h2>Log an Entry</h2>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="f-date" />
+          </div>
+          <div class="field">
+            <label>Time</label>
+            <input type="time" id="f-time" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Cause</label>
+            <input type="text" id="f-cause" placeholder="What caused it?" />
+          </div>
+          <div class="field">
+            <label>Place</label>
+            <input type="text" id="f-place" placeholder="Where?" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Thought</label>
+            <input type="text" id="f-thought" placeholder="Quick thought…" />
+          </div>
+          <div class="field">
+            <label>How Long</label>
+            <input type="text" id="f-how-long" placeholder="e.g. 20 min" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Level (1 – 10)</label>
+          <div class="radio-row" id="level-group"></div>
+        </div>
+
+        <div class="field">
+          <label>Note</label>
+          <textarea id="f-note" placeholder="Any notes…"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Why</label>
+          <textarea id="f-why" placeholder="Why did this happen?"></textarea>
+        </div>
+
+        <div class="field">
+          <label>What Done to Win</label>
+          <textarea
+            id="f-what-done"
+            placeholder="What helped you overcome it?"
+          ></textarea>
+        </div>
+
+        <button class="btn-save" id="save-btn" onclick="saveEntry()">
+          Save Entry
+        </button>
+      </div>
+
+      <!-- ── HISTORY PAGE ── -->
+      <div class="page" id="page-history">
+        <h2>Past Data</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date / Time</th>
+                <th>Cause</th>
+                <th>Place</th>
+                <th>Thought</th>
+                <th>How Long</th>
+                <th>Level</th>
+                <th>Note</th>
+                <th>Why</th>
+                <th>What Done</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+          <div id="history-empty" class="empty" style="display: none">
+            No entries yet.
+          </div>
+        </div>
+        <div class="pagination">
+          <button id="btn-prev" onclick="changePage(-1)" disabled>
+            ← Prev
+          </button>
+          <span id="page-info">— / —</span>
+          <button id="btn-next" onclick="changePage(1)" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+      // ══════════════ STATE ══════════════
+      let token = localStorage.getItem("token") || "";
+      let currentUser = localStorage.getItem("username") || "";
+      let authMode = "login";
+      let currentPage = 1;
+      const LIMIT = 10;
+
+      // ══════════════ BOOT ══════════════
+      (function init() {
+        // Level radios
+        const g = document.getElementById("level-group");
+        for (let i = 1; i <= 10; i++) {
+          g.innerHTML += `<input type="radio" name="level" id="lvl-${i}" value="${i}">
+                    <label for="lvl-${i}">${i}</label>`;
+        }
+        // If already logged in, skip auth screen
+        if (token) {
+          showApp();
+        }
+      })();
+
+      // ══════════════ AUTH ══════════════
+      function switchTab(mode) {
+        authMode = mode;
+        document
+          .getElementById("tab-login")
+          .classList.toggle("active", mode === "login");
+        document
+          .getElementById("tab-register")
+          .classList.toggle("active", mode === "register");
+        document.getElementById("auth-btn").textContent =
+          mode === "login" ? "Login" : "Register";
+        document.getElementById("auth-err").textContent = "";
+      }
+
+      async function authSubmit() {
+        const username = document.getElementById("a-username").value.trim();
+        const password = document.getElementById("a-password").value;
+        const errEl = document.getElementById("auth-err");
+        const btn = document.getElementById("auth-btn");
+
+        if (!username || !password) {
+          errEl.textContent = "Fill in both fields.";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "…";
+        errEl.textContent = "";
+
+        try {
+          const res = await fetch(`/api/${authMode}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            errEl.textContent = data.error;
+            return;
+          }
+          token = data.token;
+          currentUser = data.username;
+          localStorage.setItem("token", token);
+          localStorage.setItem("username", currentUser);
+          showApp();
+        } catch (e) {
+          errEl.textContent = "Network error.";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = authMode === "login" ? "Login" : "Register";
+        }
+      }
+
+      function showApp() {
+        document.getElementById("auth-screen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        document.getElementById("nav-username").textContent = currentUser;
+        setDefaultDateTime();
+      }
+
+      function logout() {
+        token = "";
+        currentUser = "";
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        document.getElementById("app").style.display = "none";
+        document.getElementById("auth-screen").style.display = "flex";
+        document.getElementById("a-password").value = "";
+        document.getElementById("auth-err").textContent = "";
+      }
+
+      // ══════════════ DATE / TIME ══════════════
+      function setDefaultDateTime() {
+        const now = new Date();
+        // YYYY-MM-DD for date input
+        document.getElementById("f-date").value = now
+          .toISOString()
+          .slice(0, 10);
+        // HH:MM for time input
+        document.getElementById("f-time").value = now
+          .toTimeString()
+          .slice(0, 5);
+      }
+
+      // ══════════════ NAV ══════════════
+      function showPage(name, btn) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll("nav .nav-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("page-" + name).classList.add("active");
+        btn.classList.add("active");
+      }
+
+      // ══════════════ TOAST ══════════════
+      function toast(msg, type = "ok") {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.className = `show ${type}`;
+        setTimeout(() => (el.className = ""), 3000);
+      }
+
+      // ══════════════ SAVE ══════════════
+      async function saveEntry() {
+        const btn = document.getElementById("save-btn");
+        const level = document.querySelector(
+          'input[name="level"]:checked',
+        )?.value;
+        if (!level) {
+          toast("Pick a level 1–10", "err");
+          return;
+        }
+
+        // Combine date + time into an ISO string so the server stores the user-chosen time
+        const dateVal = document.getElementById("f-date").value;
+        const timeVal = document.getElementById("f-time").value;
+        const entryTime =
+          dateVal && timeVal
+            ? new Date(`${dateVal}T${timeVal}`).toISOString()
+            : new Date().toISOString();
+
+        const body = {
+          cause: document.getElementById("f-cause").value.trim(),
+          place: document.getElementById("f-place").value.trim(),
+          note: document.getElementById("f-note").value.trim(),
+          level: parseInt(level),
+          why: document.getElementById("f-why").value.trim(),
+          thought: document.getElementById("f-thought").value.trim(),
+          how_long: document.getElementById("f-how-long").value.trim(),
+          what_done: document.getElementById("f-what-done").value.trim(),
+          entry_time: entryTime,
+        };
+
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+        try {
+          const res = await fetch("/api/entries", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            toast("Entry saved ✓");
+            clearForm();
+          } else if (res.status === 401) {
+            logout();
+          } else throw new Error(data.error);
+        } catch (e) {
+          toast("Error: " + e.message, "err");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Save Entry";
+        }
+      }
+
+      function clearForm() {
+        [
+          "f-cause",
+          "f-place",
+          "f-note",
+          "f-why",
+          "f-thought",
+          "f-how-long",
+          "f-what-done",
+        ].forEach((id) => (document.getElementById(id).value = ""));
+        document
+          .querySelectorAll('input[name="level"]')
+          .forEach((r) => (r.checked = false));
+        setDefaultDateTime(); // reset to current time after clear
+      }
+
+      // ══════════════ HISTORY ══════════════
+      async function loadHistory(page = 1) {
+        currentPage = page;
+        try {
+          const res = await fetch(`/api/entries?page=${page}&limit=${LIMIT}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.status === 401) {
+            logout();
+            return;
+          }
+          const data = await res.json();
+          if (!data.ok) {
+            toast("Failed to load", "err");
+            return;
+          }
+
+          const tbody = document.getElementById("history-body");
+          const empty = document.getElementById("history-empty");
+          tbody.innerHTML = "";
+
+          if (!data.entries.length) {
+            empty.style.display = "";
+          } else {
+            empty.style.display = "none";
+            data.entries.forEach((e, i) => {
+              const dt = new Date(e.entry_time || e.created_at);
+              const dateStr = dt.toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "2-digit",
+              });
+              const timeStr = dt.toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              const hue = Math.round((e.level - 1) * 12);
+              const color = `hsl(${120 - hue}, 60%, 55%)`;
+              tbody.innerHTML += `<tr>
+          <td style="color:var(--muted);font-family:'DM Mono',monospace">${(page - 1) * LIMIT + i + 1}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${dateStr}<br>${timeStr}</td>
+          <td title="${e.cause || ""}">${e.cause || "—"}</td>
+          <td title="${e.place || ""}">${e.place || "—"}</td>
+          <td title="${e.thought || ""}">${e.thought || "—"}</td>
+          <td>${e.how_long || "—"}</td>
+          <td><span class="badge-level" style="background:${color}20;color:${color};border:1px solid ${color}40">${e.level}</span></td>
+          <td title="${e.note || ""}">${e.note || "—"}</td>
+          <td title="${e.why || ""}">${e.why || "—"}</td>
+          <td title="${e.what_done || ""}">${e.what_done || "—"}</td>
+        </tr>`;
+            });
+          }
+
+          const totalPages = Math.ceil(data.total / LIMIT) || 1;
+          document.getElementById("page-info").textContent =
+            `${page} / ${totalPages}`;
+          document.getElementById("btn-prev").disabled = page <= 1;
+          document.getElementById("btn-next").disabled = page >= totalPages;
+        } catch (e) {
+          toast("Network error", "err");
+        }
+      }
+
+      function changePage(dir) {
+        loadHistory(currentPage + dir);
+      }
+    </script>
+  </body>
+</html>
