@@ -227,6 +227,10 @@
       .page.active {
         display: block;
       }
+      #page-history {
+        max-width: 100%;
+        padding: 24px 20px 40px;
+      }
       h2 {
         font-size: 17px;
         font-weight: 600;
@@ -384,23 +388,24 @@
       th {
         font-family: "DM Mono", monospace;
         font-size: 10px;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--muted);
-        padding: 10px 12px;
+        padding: 10px 14px;
         text-align: left;
         white-space: nowrap;
+        background: var(--surface);
       }
       td {
-        padding: 11px 12px;
+        padding: 11px 14px;
         border-bottom: 1px solid var(--border);
-        max-width: 150px;
+        white-space: nowrap;
+        max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
       }
       tr:hover td {
-        background: var(--surface);
+        background: #1c1e23;
       }
 
       .badge-level {
@@ -415,52 +420,86 @@
         font-weight: 500;
       }
 
-      /* ── HISTORY — mobile cards ── */
-      .cards {
+      /* ── MOBILE LIST (tap-to-expand accordion) ── */
+      .m-list {
         display: none;
         flex-direction: column;
-        gap: 12px;
       }
-      .card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 14px 16px;
+
+      .m-row {
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
       }
-      .card-top {
+      .m-row-head {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        gap: 10px;
+        padding: 13px 4px;
       }
-      .card-dt {
+      .m-row-head .m-num {
         font-family: "DM Mono", monospace;
+        font-size: 10px;
+        color: var(--muted);
+        min-width: 18px;
+      }
+      .m-row-head .m-main {
+        flex: 1;
+        min-width: 0;
+      }
+      .m-row-head .m-cause {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .m-row-head .m-meta {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .m-row-head .m-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .m-chevron {
         font-size: 11px;
         color: var(--muted);
-        line-height: 1.5;
+        transition: transform 0.2s;
       }
-      .card-rows {
-        display: flex;
+      .m-row.open .m-chevron {
+        transform: rotate(180deg);
+      }
+
+      .m-detail {
+        display: none;
+        padding: 0 4px 14px;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
       }
-      .card-row {
+      .m-row.open .m-detail {
         display: flex;
+      }
+      .m-detail-row {
+        display: grid;
+        grid-template-columns: 76px 1fr;
         gap: 8px;
         font-size: 13px;
-        line-height: 1.4;
+        line-height: 1.45;
       }
-      .card-lbl {
+      .m-detail-lbl {
         font-family: "DM Mono", monospace;
         font-size: 10px;
         color: var(--muted);
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        min-width: 68px;
         padding-top: 1px;
-        flex-shrink: 0;
       }
-      .card-val {
+      .m-detail-val {
         color: var(--text);
         word-break: break-word;
       }
@@ -511,15 +550,18 @@
           grid-template-columns: 1fr;
           gap: 0;
         }
-        .table-wrap table {
+        .table-wrap {
           display: none;
         }
-        .cards {
+        .m-list {
           display: flex;
         }
         nav button.nav-btn {
           font-size: 11px;
           padding: 13px 10px;
+        }
+        #page-history {
+          padding: 20px 16px 40px;
         }
       }
     </style>
@@ -677,11 +719,11 @@
             </thead>
             <tbody id="history-body"></tbody>
           </table>
-          <div id="history-empty" class="empty" style="display: none">
-            No entries yet.
-          </div>
         </div>
-        <div class="cards" id="history-cards"></div>
+        <div id="history-empty" class="empty" style="display: none">
+          No entries yet.
+        </div>
+        <div class="m-list" id="history-mlist"></div>
         <div class="pagination">
           <button id="btn-prev" onclick="changePage(-1)" disabled>
             ← Prev
@@ -911,10 +953,10 @@
           }
 
           const tbody = document.getElementById("history-body");
-          const cards = document.getElementById("history-cards");
+          const mlist = document.getElementById("history-mlist");
           const empty = document.getElementById("history-empty");
           tbody.innerHTML = "";
-          cards.innerHTML = "";
+          mlist.innerHTML = "";
 
           if (!data.entries.length) {
             empty.style.display = "";
@@ -935,10 +977,10 @@
               const color = `hsl(${120 - hue}, 60%, 55%)`;
               const num = (page - 1) * LIMIT + i + 1;
 
-              // Desktop table row
+              // ── Desktop table row ──
               tbody.innerHTML += `<tr>
           <td style="color:var(--muted);font-family:'DM Mono',monospace">${num}</td>
-          <td style="font-family:'DM Mono',monospace;font-size:11px">${dateStr}<br>${timeStr}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${dateStr} ${timeStr}</td>
           <td title="${e.cause || ""}">${e.cause || "—"}</td>
           <td title="${e.place || ""}">${e.place || "—"}</td>
           <td title="${e.thought || ""}">${e.thought || "—"}</td>
@@ -949,26 +991,37 @@
           <td title="${e.what_done || ""}">${e.what_done || "—"}</td>
         </tr>`;
 
-              // Mobile card
-              const row = (lbl, val) =>
+              // ── Mobile accordion row ──
+              const drow = (lbl, val) =>
                 val
-                  ? `<div class="card-row"><span class="card-lbl">${lbl}</span><span class="card-val">${val}</span></div>`
+                  ? `<div class="m-detail-row"><span class="m-detail-lbl">${lbl}</span><span class="m-detail-val">${val}</span></div>`
                   : "";
-              cards.innerHTML += `<div class="card">
-          <div class="card-top">
-            <div class="card-dt">${dateStr}<br>${timeStr}</div>
-            <span class="badge-level" style="background:${color}20;color:${color};border:1px solid ${color}40">${e.level}</span>
+              const el = document.createElement("div");
+              el.className = "m-row";
+              el.innerHTML = `
+          <div class="m-row-head">
+            <span class="m-num">${num}</span>
+            <div class="m-main">
+              <div class="m-cause">${e.cause || "(no cause)"}</div>
+              <div class="m-meta">${dateStr} · ${timeStr}</div>
+            </div>
+            <div class="m-right">
+              <span class="badge-level" style="background:${color}20;color:${color};border:1px solid ${color}40">${e.level}</span>
+              <span class="m-chevron">▾</span>
+            </div>
           </div>
-          <div class="card-rows">
-            ${row("Cause", e.cause)}
-            ${row("Place", e.place)}
-            ${row("Thought", e.thought)}
-            ${row("How Long", e.how_long)}
-            ${row("Note", e.note)}
-            ${row("Why", e.why)}
-            ${row("What Done", e.what_done)}
-          </div>
-        </div>`;
+          <div class="m-detail">
+            ${drow("Place", e.place)}
+            ${drow("Thought", e.thought)}
+            ${drow("How Long", e.how_long)}
+            ${drow("Note", e.note)}
+            ${drow("Why", e.why)}
+            ${drow("What Done", e.what_done)}
+          </div>`;
+              el.querySelector(".m-row-head").addEventListener("click", () => {
+                el.classList.toggle("open");
+              });
+              mlist.appendChild(el);
             });
           }
 
