@@ -43,13 +43,13 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        padding: 24px;
+        padding: 16px;
       }
       .auth-box {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 16px;
-        padding: 40px 36px;
+        padding: 32px 24px;
         width: 100%;
         max-width: 380px;
       }
@@ -63,9 +63,9 @@
         color: var(--muted);
         margin-bottom: 28px;
       }
+
       .auth-tabs {
         display: flex;
-        gap: 0;
         border: 1px solid var(--border);
         border-radius: 8px;
         overflow: hidden;
@@ -73,7 +73,7 @@
       }
       .auth-tabs button {
         flex: 1;
-        padding: 9px;
+        padding: 10px;
         background: none;
         border: none;
         color: var(--muted);
@@ -87,6 +87,7 @@
         background: var(--accent);
         color: #fff;
       }
+
       .auth-field {
         margin-bottom: 14px;
       }
@@ -106,8 +107,8 @@
         border-radius: var(--radius);
         color: var(--text);
         font-family: "DM Sans", sans-serif;
-        font-size: 14px;
-        padding: 10px 14px;
+        font-size: 16px; /* 16px prevents iOS zoom */
+        padding: 11px 14px;
         outline: none;
         transition: border-color 0.2s;
       }
@@ -122,20 +123,21 @@
       }
       .btn-auth {
         width: 100%;
-        padding: 12px;
+        padding: 13px;
         background: var(--accent);
         border: none;
         border-radius: var(--radius);
         color: #fff;
         font-family: "DM Sans", sans-serif;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         transition: opacity 0.2s;
         margin-top: 4px;
+        -webkit-tap-highlight-color: transparent;
       }
-      .btn-auth:hover {
-        opacity: 0.88;
+      .btn-auth:active {
+        opacity: 0.82;
       }
       .btn-auth:disabled {
         opacity: 0.4;
@@ -147,12 +149,16 @@
         display: none;
       }
 
+      /* ── NAV ── */
       nav {
         display: flex;
         align-items: center;
         border-bottom: 1px solid var(--border);
-        padding: 0 24px;
+        padding: 0 12px;
         background: var(--surface);
+        position: sticky;
+        top: 0;
+        z-index: 10;
       }
       nav .nav-links {
         display: flex;
@@ -163,44 +169,50 @@
         border: none;
         color: var(--muted);
         font-family: "DM Mono", monospace;
-        font-size: 13px;
-        padding: 16px 20px;
+        font-size: 12px;
+        padding: 14px 12px;
         cursor: pointer;
         border-bottom: 2px solid transparent;
         transition: all 0.2s;
         letter-spacing: 0.03em;
+        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
       }
       nav button.nav-btn.active {
         color: var(--accent2);
         border-bottom-color: var(--accent);
       }
-      nav button.nav-btn:hover:not(.active) {
-        color: var(--text);
-      }
       nav .nav-user {
         font-family: "DM Mono", monospace;
-        font-size: 12px;
+        font-size: 11px;
         color: var(--muted);
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
+        flex-shrink: 0;
       }
-      nav .nav-user span {
+      nav .nav-user .uname {
         color: var(--accent2);
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       nav .btn-logout {
         background: none;
         border: 1px solid var(--border);
         border-radius: 6px;
         color: var(--muted);
-        font-size: 11px;
-        padding: 5px 10px;
+        font-size: 10px;
+        padding: 5px 8px;
         cursor: pointer;
         font-family: "DM Mono", monospace;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.04em;
         transition: all 0.15s;
+        -webkit-tap-highlight-color: transparent;
+        white-space: nowrap;
       }
-      nav .btn-logout:hover {
+      nav .btn-logout:active {
         border-color: var(--danger);
         color: var(--danger);
       }
@@ -208,30 +220,30 @@
       /* ── PAGES ── */
       .page {
         display: none;
-        padding: 32px 24px;
+        padding: 24px 16px 40px;
         max-width: 720px;
         margin: 0 auto;
       }
       .page.active {
         display: block;
       }
-
       h2 {
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 600;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
       }
 
+      /* ── FORM ── */
       .grid2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 12px;
       }
       .field {
         display: flex;
         flex-direction: column;
         gap: 6px;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
       }
       .field label {
         font-size: 11px;
@@ -250,12 +262,13 @@
         border-radius: var(--radius);
         color: var(--text);
         font-family: "DM Sans", sans-serif;
-        font-size: 14px;
-        padding: 10px 14px;
+        font-size: 16px; /* prevents iOS auto-zoom */
+        padding: 11px 14px;
         width: 100%;
         outline: none;
         transition: border-color 0.2s;
         resize: vertical;
+        -webkit-appearance: none;
       }
       input[type="date"]::-webkit-calendar-picker-indicator,
       input[type="time"]::-webkit-calendar-picker-indicator {
@@ -267,7 +280,8 @@
         border-color: var(--accent);
       }
       textarea {
-        min-height: 90px;
+        min-height: 80px;
+        font-size: 15px;
       }
 
       /* ── LEVEL ── */
@@ -280,16 +294,17 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         border: 1px solid var(--border);
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 14px;
         font-family: "DM Mono", monospace;
         cursor: pointer;
         color: var(--muted);
         transition: all 0.15s;
         user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
       .radio-row input[type="radio"] {
         display: none;
@@ -300,16 +315,12 @@
         color: #fff;
         font-weight: 500;
       }
-      .radio-row label:hover {
-        border-color: var(--accent2);
-        color: var(--accent2);
-      }
 
       /* ── SAVE BTN ── */
       .btn-save {
         margin-top: 8px;
         width: 100%;
-        padding: 13px;
+        padding: 14px;
         background: var(--accent);
         border: none;
         border-radius: var(--radius);
@@ -318,15 +329,11 @@
         font-size: 15px;
         font-weight: 600;
         cursor: pointer;
-        transition:
-          opacity 0.2s,
-          transform 0.1s;
-      }
-      .btn-save:hover {
-        opacity: 0.88;
+        transition: opacity 0.2s;
+        -webkit-tap-highlight-color: transparent;
       }
       .btn-save:active {
-        transform: scale(0.98);
+        opacity: 0.82;
       }
       .btn-save:disabled {
         opacity: 0.4;
@@ -336,17 +343,19 @@
       /* ── TOAST ── */
       #toast {
         position: fixed;
-        bottom: 24px;
-        right: 24px;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        padding: 12px 18px;
+        padding: 11px 20px;
         font-size: 13px;
         opacity: 0;
         transition: opacity 0.3s;
         pointer-events: none;
         z-index: 99;
+        white-space: nowrap;
       }
       #toast.show {
         opacity: 1;
@@ -360,7 +369,7 @@
         color: var(--danger);
       }
 
-      /* ── TABLE ── */
+      /* ── HISTORY — desktop table ── */
       .table-wrap {
         overflow-x: auto;
       }
@@ -406,6 +415,56 @@
         font-weight: 500;
       }
 
+      /* ── HISTORY — mobile cards ── */
+      .cards {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+      }
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .card-dt {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .card-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .card-row {
+        display: flex;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .card-lbl {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        min-width: 68px;
+        padding-top: 1px;
+        flex-shrink: 0;
+      }
+      .card-val {
+        color: var(--text);
+        word-break: break-word;
+      }
+
       /* ── PAGINATION ── */
       .pagination {
         display: flex;
@@ -419,14 +478,14 @@
         border: 1px solid var(--border);
         color: var(--text);
         border-radius: 8px;
-        padding: 7px 14px;
+        padding: 9px 18px;
         font-size: 13px;
         cursor: pointer;
         transition: border-color 0.2s;
+        -webkit-tap-highlight-color: transparent;
       }
-      .pagination button:hover:not(:disabled) {
+      .pagination button:active {
         border-color: var(--accent);
-        color: var(--accent2);
       }
       .pagination button:disabled {
         opacity: 0.35;
@@ -436,14 +495,32 @@
         font-family: "DM Mono", monospace;
         font-size: 12px;
         color: var(--muted);
-        min-width: 80px;
+        min-width: 60px;
         text-align: center;
       }
       .empty {
         text-align: center;
-        padding: 48px;
+        padding: 48px 24px;
         color: var(--muted);
         font-size: 14px;
+      }
+
+      /* ── MOBILE BREAKPOINT ── */
+      @media (max-width: 600px) {
+        .grid2 {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .table-wrap table {
+          display: none;
+        }
+        .cards {
+          display: flex;
+        }
+        nav button.nav-btn {
+          font-size: 11px;
+          padding: 13px 10px;
+        }
       }
     </style>
   </head>
@@ -509,7 +586,7 @@
           </button>
         </div>
         <div class="nav-user">
-          hi, <span id="nav-username"></span>
+          hi, <span class="uname" id="nav-username"></span>
           <button class="btn-logout" onclick="logout()">logout</button>
         </div>
       </nav>
@@ -604,6 +681,7 @@
             No entries yet.
           </div>
         </div>
+        <div class="cards" id="history-cards"></div>
         <div class="pagination">
           <button id="btn-prev" onclick="changePage(-1)" disabled>
             ← Prev
@@ -833,8 +911,10 @@
           }
 
           const tbody = document.getElementById("history-body");
+          const cards = document.getElementById("history-cards");
           const empty = document.getElementById("history-empty");
           tbody.innerHTML = "";
+          cards.innerHTML = "";
 
           if (!data.entries.length) {
             empty.style.display = "";
@@ -853,8 +933,11 @@
               });
               const hue = Math.round((e.level - 1) * 12);
               const color = `hsl(${120 - hue}, 60%, 55%)`;
+              const num = (page - 1) * LIMIT + i + 1;
+
+              // Desktop table row
               tbody.innerHTML += `<tr>
-          <td style="color:var(--muted);font-family:'DM Mono',monospace">${(page - 1) * LIMIT + i + 1}</td>
+          <td style="color:var(--muted);font-family:'DM Mono',monospace">${num}</td>
           <td style="font-family:'DM Mono',monospace;font-size:11px">${dateStr}<br>${timeStr}</td>
           <td title="${e.cause || ""}">${e.cause || "—"}</td>
           <td title="${e.place || ""}">${e.place || "—"}</td>
@@ -865,6 +948,27 @@
           <td title="${e.why || ""}">${e.why || "—"}</td>
           <td title="${e.what_done || ""}">${e.what_done || "—"}</td>
         </tr>`;
+
+              // Mobile card
+              const row = (lbl, val) =>
+                val
+                  ? `<div class="card-row"><span class="card-lbl">${lbl}</span><span class="card-val">${val}</span></div>`
+                  : "";
+              cards.innerHTML += `<div class="card">
+          <div class="card-top">
+            <div class="card-dt">${dateStr}<br>${timeStr}</div>
+            <span class="badge-level" style="background:${color}20;color:${color};border:1px solid ${color}40">${e.level}</span>
+          </div>
+          <div class="card-rows">
+            ${row("Cause", e.cause)}
+            ${row("Place", e.place)}
+            ${row("Thought", e.thought)}
+            ${row("How Long", e.how_long)}
+            ${row("Note", e.note)}
+            ${row("Why", e.why)}
+            ${row("What Done", e.what_done)}
+          </div>
+        </div>`;
             });
           }
 
